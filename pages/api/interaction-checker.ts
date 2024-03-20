@@ -10,30 +10,36 @@ export default async function handler(req: NextApiRequest, res:NextApiResponse<a
   } else if (req.method === 'POST') {
     // Handle POST request
     // Example: Accessing POST data
-    const { terms } = req.body;
+    const terms: string= req.body;
     const interactions = await fetch(BASE_URL, {
       method: "POST",
-      body: JSON.stringify({
-        "model": "gpt-3.5-turbo-1106",
-        "messages": [
-            {
-                "role": "system",
-                "content": "You are a medical assistant that takes in drug names seperated by commas as input and checks for possible drug interactions. If no interactions, don't send anything. Else, send back in this JSON format: {interactions: [ drug1,drug2:{Severity: Mild, Moderate, Severe, Reccomendation: Reason for severity} ]}"
-            },
-            {
-                "role": "user",
-                "content": terms
-            }
-        ],
-        "response_format": {
-            "type": "json_object"
-        }
-    }),
       headers: {
-        "Content-type": "application/json; charset=UTF-8"
-      }
+          "Content-Type": "application/json; charset=UTF-8",
+          "Authorization": `Bearer ${process.env.GPT_TOKEN}`,
+      },
+      body: JSON.stringify({
+          "model": "gpt-3.5-turbo-1106",
+          "messages": [{
+                  "role": "system",
+                  "content": `You are a medical assistant that takes in csv drug names \
+                  ,checking possible drug interactions. No interactions, send nothing. \
+                  Else, send JSON: \
+                  {interactions: [ {drugs: drug1,drug2, severity: Mild, Moderate, Severe, recommendation: reccomendation} ]}`
+              },
+              {
+                  "role": "user",
+                  "content": terms,
+              }
+          ],
+          "response_format": {
+              "type": "json_object"
+          }
+      })
     });
-    res.status(200).json(interactions)
+
+    const response = await interactions.json() 
+    console.log(response.choices[0].message.content)
+    res.status(200).json(response.choices[0].message.content)
   } else {
     // Handle other HTTP methods
     res.status(405).end(); // Method Not Allowed
