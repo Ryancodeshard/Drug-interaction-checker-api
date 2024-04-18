@@ -6,9 +6,9 @@ import Tesseract from "tesseract.js";
 import {
   Box,
   Button,
-  FormControl,
+  CircularProgress,
   FormControlLabel,
-  FormLabel,
+  LinearProgress,
   List,
   Radio,
   RadioGroup,
@@ -21,9 +21,12 @@ import drugInfo from "@/interfaces/drugInfo";
 
 const itemData = [
   {
-    fileUrl:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCdZO1hPDa_MZ0MSA6T-HmEa2BrWOWC1tA3-lE8jwA9g&s",
-    fileName: "Bottle Prescription",
+    fileUrl: "/Methotrexate.jpg",
+    fileName: "Methotrexate",
+  },
+  {
+    fileUrl: "/Amoxicillin.jpg",
+    fileName: "Amoxicillin",
   },
 ];
 
@@ -214,7 +217,23 @@ function App() {
       </Button>
       <Box>
         {loading ? (
-          <div>Loading...</div>
+          <Box
+            sx={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor:
+                "rgba(0, 0, 0, 0.5)" /* Adjust the alpha value (0.5 in this case) for the desired transparency */,
+              zIndex: 9999,
+              display: "flex" /* Use flexbox layout */,
+              justifyContent: "center" /* Center content horizontally */,
+              alignItems: "center" /* Center content vertically */,
+            }}
+          >
+            <CircularProgress color="success" />
+          </Box>
         ) : eventInfos.length === 0 ? (
           <></>
         ) : (

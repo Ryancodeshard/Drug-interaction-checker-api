@@ -16,16 +16,16 @@ export default function ImageGrid({
   return (
     <ImageList
       sx={{
-        width: 500,
-        height: 450,
+        width: "100%",
+        height: "100%",
       }}
     >
       {itemData?.map((item, index) => (
         <ImageListItem
           key={index}
           sx={{
-            width: "248px",
-            height: "248px",
+            width: "100%",
+            height: "100%",
           }}
         >
           <img
