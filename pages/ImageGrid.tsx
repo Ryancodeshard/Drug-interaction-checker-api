@@ -16,6 +16,8 @@ export default function ImageGrid({
   return (
     <ImageList
       sx={{
+        minWidth: "80vw",
+        minHeight: "20vh",
         width: "100%",
         height: "100%",
       }}

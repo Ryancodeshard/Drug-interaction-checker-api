@@ -8,7 +8,6 @@ import {
   Button,
   CircularProgress,
   FormControlLabel,
-  LinearProgress,
   List,
   Radio,
   RadioGroup,
@@ -19,7 +18,7 @@ import ImageGrid from "./ImageGrid";
 import imgInfo from "@/interfaces/imgInfo";
 import drugInfo from "@/interfaces/drugInfo";
 
-const itemData = [
+const exampleData = [
   {
     fileUrl: "/Methotrexate.jpg",
     fileName: "Methotrexate",
@@ -38,7 +37,7 @@ const severityMap = {
 };
 
 function App() {
-  const [addedFiles, setAddedFiles] = useState<imgInfo[]>(itemData);
+  const [addedFiles, setAddedFiles] = useState<imgInfo[]>([]);
   const [interactions, setInteractions] = useState<interactionInfo[]>([]);
   const [medInfos, setMedInfos] = useState<drugInfo[]>([]);
   const [eventInfos, seteventInfos] = useState<eventInfo[]>([]);
@@ -143,16 +142,21 @@ function App() {
     >
       <Typography variant="h2">Med2Cal</Typography>
       <h3>Step 1: Upload Images</h3>
-      <Button variant="contained" component="label">
-        Add Prescriptions
-        <input
-          type="file"
-          multiple
-          hidden
-          onChange={handleAddFiles}
-          accept="image/*"
-        />
-      </Button>
+      <Box>
+        <Button variant="contained" onClick={() => setAddedFiles(exampleData)}>
+          Load Example
+        </Button>
+        <Button variant="contained" component="label">
+          + Add Prescriptions
+          <input
+            type="file"
+            multiple
+            hidden
+            onChange={handleAddFiles}
+            accept="image/*"
+          />
+        </Button>
+      </Box>
       <Box
         sx={{
           boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
