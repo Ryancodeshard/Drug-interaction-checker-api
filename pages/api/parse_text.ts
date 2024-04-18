@@ -1,8 +1,65 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import drugInfo from '../interfaces/drugInfo';
-import getDrugInteractions from "../backend_funcs/interactionChecker";
-import generateSchedules from '../backend_funcs/genSchedules';
+import drugInfo from '../../interfaces/drugInfo';
+import db_handler from './handler';
 const BASE_URL = "https://api.openai.com/v1/chat/completions"
+
+const getDrugInteractions=async(drug_map:{[drugName:string]:string})=>{
+  console.log(drug_map)
+  const drug_levels:any[] = []
+  const drugs = Object.keys(drug_map)
+  for (let i=0;i<drugs.length-1;i++){
+    for (let j=i+1;j<drugs.length;j++){
+      const drugA=drugs[i]
+      const drugB=drugs[j]
+      console.log("Checking for:",drugA,drugB)
+      const responseBody = await db_handler(`
+        SELECT * FROM drug_interactions WHERE (drug_a = '${drugA}' AND drug_b = '${drugB}') OR (drug_a = '${drugB}' AND drug_b = '${drugA}');
+      `)
+
+      for (let i=0;i<responseBody.rows.length;i++){
+        const doc = responseBody.rows[i]
+        drug_levels.push([doc.level,drug_map[drugA],drug_map[drugB]])
+      }
+    }
+  }
+  return drug_levels;
+  
+}
+// Function to generate .ics file
+const generateSchedules = (data: drugInfo[]) =>{
+  // Create a new calendar
+  let res:any = []
+  const interval_timings_map: { [index: number]: number[] } = {
+    1: [9],
+    2: [10, 19],
+    3: [8, 12, 18],
+    4: [8, 12, 18, 21],
+    5: [5, 9, 12, 17, 21],
+    6: [2, 6, 10, 14, 18, 21],
+    8: [1, 3, 6, 9, 12, 15, 18, 21],
+  };
+
+  // Loop through the data to create events for each medication
+  data.forEach((drug: drugInfo) => {
+    // Loop to add events for each time the medicine should be taken
+    if (!(drug.timesPerDay in Object.keys(interval_timings_map))) console.error("Error in passed values");
+    interval_timings_map[drug.timesPerDay].forEach((startTime: number) => {
+      const start = new Date();
+      start.setHours(startTime,0,0,0);
+      const end = new Date();
+      end.setHours(startTime + 1,0,0,0);
+      res.push({
+        start: start,
+        end: end, // End time is 1 hour after start time
+        summary: `Take ${drug.dosage} pill(s) of ${drug.medName}`,
+        description: `It's time to take ${drug.dosage} of ${
+          drug.medName
+        }. ${drug.beforeMeals ? "Take before meal." : "Take after meal."}`
+      })
+    });
+  });
+  return res;
+}
 
 const parseText = async (query:string):Promise<drugInfo>=>{
   // Handle POST request

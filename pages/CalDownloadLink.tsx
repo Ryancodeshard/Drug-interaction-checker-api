@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import ical, { ICalAlarmType, ICalEventRepeatingFreq } from "ical-generator";
-import eventInfo from "./interfaces/eventInfo";
+import eventInfo from "../interfaces/eventInfo";
 
 // Function to generate .ics file
 function generateICS(data: eventInfo[]) {

@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import CalDownloadLink from "./CalDownloadLink";
-import eventInfo from "./interfaces/eventInfo";
+import eventInfo from "../interfaces/eventInfo";
 import Tesseract from "tesseract.js";
 
 function App() {
