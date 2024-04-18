@@ -4,5 +4,5 @@ export default interface drugInfo {
   drugNames:string[];
   dosage:string;
   timesPerDay:number;
-  beforeMeals:number;
+  beforeMeal:number;
 }

@@ -10,17 +10,17 @@ export default async function handler(req: NextApiRequest, res:NextApiResponse<a
     res.status(200).json({ message: 'Hello' });
   } else if (req.method === 'POST') {
   try {
-    const drugs:{[drugName:string]:string}={};
-    const drugJsons:drugInfo[] = [];
-    const queries = JSON.parse(req.body).queries
-    console.log(queries)
-    for (const query of queries) {
-      const drugJson = await parseText(query);
-      drugJson.drugNames.forEach((drug)=>{drugs[drug]=drugJson.medName})
-      drugJsons.push(drugJson);
-    }
-
-    res.status(200).json(drugJsons);
+    const drugJsons:drugInfo[] = JSON.parse(req.body)
+    const drugs:{[drugName:string]:string}=drugJsons.reduce((acc:{[name:string]:string}, drug) => {
+      drug.drugNames.forEach(name => {
+        acc[name] = drug.medName;
+      });
+      return acc;
+    }, {});
+    console.log(drugs)
+    const interactions = await getDrugInteractions(drugs)
+    const schedules = await generateSchedules(drugJsons);
+    res.status(200).json({schedules:schedules,interactions:interactions});
   } catch (error) {
     console.error('Error handling file upload:', error);
     res.status(500).json({ error: 'Error handling file upload' });
