@@ -1,11 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CalDownloadLink from "../CalDownloadLink";
 import eventInfo from "../interfaces/eventInfo";
 import Tesseract from "tesseract.js";
 
 function App() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [interactions, setInteractions] = useState<[]>([]);
   const [eventInfos, seteventInfos] = useState<eventInfo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -39,7 +40,7 @@ function App() {
       });
 
       const info = await response.json();
-      // console.log(eventInfos);
+      console.log(info);
       seteventInfos(info.schedules);
       setInteractions(info.interactions);
       console.log("Files uploaded successfully.");
@@ -48,6 +49,17 @@ function App() {
       console.error("Error uploading files:", error);
     }
   };
+  useEffect(() => {
+    if (selectedFiles.length == 0) {
+      setPreviews([]);
+      return;
+    }
+    setPreviews(selectedFiles.map((file) => URL.createObjectURL(file)));
+    // free memory when ever this component is unmounted
+    return () => {
+      previews.forEach((objectUrl) => URL.revokeObjectURL(objectUrl));
+    };
+  }, [selectedFiles]);
 
   return (
     <div>
@@ -58,17 +70,23 @@ function App() {
         onChange={handleFileChange}
         accept="image/*"
       />
+      {previews.map((preview, index) => (
+        <ul key={index}>
+          <img src={preview} />
+        </ul>
+      ))}
       <button onClick={handleSubmit}>Upload files</button>
       {loading ? (
-        <div>Loading</div>
+        <div>Loading...</div>
       ) : eventInfos.length === 0 ? (
         <></>
       ) : (
         <>
           <CalDownloadLink data={eventInfos} />
-          {interactions.map((row) => (
-            <div>
-              Level:{row[0]} Drugs:{row[1] + "," + row[2]}
+          {interactions.map((row, index) => (
+            <div key={index}>
+              <div>Level: {row[0]}</div>
+              <div>Drugs: {row[1] + ", " + row[2]}</div>
             </div>
           ))}
         </>

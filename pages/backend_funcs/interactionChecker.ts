@@ -1,5 +1,21 @@
 import { db } from "@/db/firebaseConfig"
 import { query, collection, where, getDocs } from "firebase/firestore"
+import { Pool, QueryResult } from 'pg';
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+ssl: true
+});
+
+//DO NOT TOUCH THIS FUNCTION
+const handler = async(req: string): Promise<QueryResult<any>> => {
+  const client = await pool.connect();
+  // req = req.replaceAll('"', "'") // replace all double quotes with single
+  console.log(req)
+  const response = await client.query(req);
+  client.release();
+  return response
+}
 
 const getDrugInteractions=async(drug_map:{[drugName:string]:string})=>{
   console.log(drug_map)
@@ -9,22 +25,15 @@ const getDrugInteractions=async(drug_map:{[drugName:string]:string})=>{
     for (let j=i+1;j<drugs.length;j++){
       const drugA=drugs[i]
       const drugB=drugs[j]
-      console.log(drugA,drugB)
-      const q = query(collection(db, "drug_interactions"), where("drugA", "==", drugA));
-      const querySnapshot = await getDocs(q);
-      // console.log(querySnapshot)
-      for (let i=0;i<querySnapshot.docs.length;i++){
-        const doc = querySnapshot.docs[i]
-        console.log(doc.id, " => ", doc.data());
-        console.log(doc.data().Level)
-        drug_levels.push(doc.data().Level,drug_map[drugA],drug_map[drugB])
+      console.log("Checking for:",drugA,drugB)
+      const responseBody = await handler(`
+        SELECT * FROM drug_interactions WHERE (drug_a = '${drugA}' AND drug_b = '${drugB}') OR (drug_a = '${drugB}' AND drug_b = '${drugA}');
+      `)
+
+      for (let i=0;i<responseBody.rows.length;i++){
+        const doc = responseBody.rows[i]
+        drug_levels.push([doc.level,drug_map[drugA],drug_map[drugB]])
       }
-      // querySnapshot.forEach((doc) => {
-      //   // doc.data() is never undefined for query doc snapshots
-      //   console.log(doc.id, " => ", doc.data());
-      //   console.log(doc.data().Level)
-      //   drug_levels.push(doc.data().Level,drug_map[drugA],drug_map[drugB])
-      // });
     }
   }
   return drug_levels;

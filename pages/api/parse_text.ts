@@ -1,9 +1,5 @@
-  import { collection, query, where, getDocs } from "firebase/firestore";
-  // pages/api/upload.j
-
 import { NextApiRequest, NextApiResponse } from 'next';
 import drugInfo from '../interfaces/drugInfo';
-import { db } from "@/db/firebaseConfig";
 import getDrugInteractions from "../backend_funcs/interactionChecker";
 const BASE_URL = "https://api.openai.com/v1/chat/completions"
 
@@ -23,7 +19,7 @@ const parseText = async (query:string):Promise<drugInfo>=>{
                 "role": "system",
                 "content": "You are a medical assistant that takes in text containing scrambled prescription text, parse the text (get base drug name(s)) extract in json: "+
                 "{medName: string of original commercial name,drugNames: string[] of base drug names,dosage: number of tablets, else amount of liquid in ml,timesPerDay: number, beforeMeal: boolean}"+
-                "e.g. {medName: Panadol,drugNames: [Paracetemol],dosage: 1,timesPerDay: 1,beforeMeal: false}"
+                "e.g. {medName:Panadol,drugNames:[Acetaminophen],dosage:1,timesPerDay:1,beforeMeal:false}"
             },
             {
                 "role": "user",
@@ -85,7 +81,6 @@ export default async function handler(req: NextApiRequest, res:NextApiResponse<a
   try {
     const drugs:{[drugName:string]:string}={};
     const drugJsons:drugInfo[] = [];
-    console.log()
     const queries = JSON.parse(req.body).queries
     console.log(queries)
     // const queries = req.body
