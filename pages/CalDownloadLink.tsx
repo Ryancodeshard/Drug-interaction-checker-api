@@ -53,8 +53,8 @@ const DownloadLink = ({ data }: { data: eventInfo[] }) => {
   };
 
   return (
-    <a href="#" onClick={handleDownload}>
-      Download Medication Reminders
+    <a href="#" onClick={handleDownload} color="blue">
+      Link to Download Medication Reminders
     </a>
   );
 };

@@ -1,5 +1,3 @@
-import { db } from "@/db/firebaseConfig"
-import { query, collection, where, getDocs } from "firebase/firestore"
 import { Pool, QueryResult } from 'pg';
 
 const pool = new Pool({
