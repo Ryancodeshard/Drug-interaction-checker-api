@@ -1,6 +1,20 @@
-import { useRef, useState } from "react";
 import ical, { ICalAlarmType, ICalEventRepeatingFreq } from "ical-generator";
 import eventInfo from "../interfaces/eventInfo";
+
+function convertToLocalWithOffset(datetimeString: string) {
+  // Parse the datetime string
+  const datetime = new Date(datetimeString);
+
+  // Get the current offset in minutes
+  const currentOffset = datetime.getTimezoneOffset();
+
+  // Adjust the datetime to the target offset
+  const localDatetime = new Date(
+    datetime.getTime() - currentOffset * 60 * 1000
+  );
+
+  return localDatetime;
+}
 
 // Function to generate .ics file
 function generateICS(data: eventInfo[]) {
@@ -11,6 +25,8 @@ function generateICS(data: eventInfo[]) {
   data.forEach((event: eventInfo) => {
     cal.createEvent({
       ...event,
+      start: convertToLocalWithOffset(event.start),
+      end: convertToLocalWithOffset(event.end),
       repeating: { freq: ICalEventRepeatingFreq.DAILY },
       alarms: [
         { type: ICalAlarmType.display, trigger: 60 * 60 }, // Display alarm 1 hour before event
@@ -19,7 +35,6 @@ function generateICS(data: eventInfo[]) {
   });
 
   const fileContent = cal.toString();
-  console.log("Clendar", fileContent);
   const blob = new Blob([fileContent], { type: "text/calendar" });
   const file = new File([blob], "medication_reminders.ics", {
     type: "text/calendar",

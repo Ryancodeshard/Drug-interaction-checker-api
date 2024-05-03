@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import CalDownloadLink from "./CalDownloadLink";
 import eventInfo from "../interfaces/eventInfo";
-import Tesseract from "tesseract.js";
 import {
   Box,
   Button,
@@ -18,16 +17,28 @@ import ImageGrid from "./ImageGrid";
 import imgInfo from "@/interfaces/imgInfo";
 import drugInfo from "@/interfaces/drugInfo";
 
-const exampleData = [
-  {
-    fileUrl: "/Methotrexate.jpg",
-    fileName: "Methotrexate",
-  },
-  {
-    fileUrl: "/Amoxicillin.jpg",
-    fileName: "Amoxicillin",
-  },
-];
+const toBase64 = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+  });
+
+const fetchImage = async (url: string) => {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const file = new File([blob], "img.jpg", { type: "image/jpeg" });
+    const base64str = await toBase64(file);
+    return base64str;
+  } catch (error) {
+    console.error("Error fetching image:", error);
+    throw error; // Re-throw the error to handle it outside this function if needed
+  }
+};
+
+let exampleData: imgInfo[] = [];
 
 const severityMap = {
   Minor: "yellow",
@@ -43,16 +54,39 @@ function App() {
   const [eventInfos, seteventInfos] = useState<eventInfo[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const handleAddFiles = (e: any) => {
+  useEffect(() => {
+    const bruh = async () => {
+      exampleData = [
+        {
+          fileUrl: "/Methotrexate.jpg",
+          fileName: "Methotrexate",
+          fileObject: await fetchImage("/Methotrexate.jpg"),
+        },
+        {
+          fileUrl: "/Amoxicillin.jpg",
+          fileName: "Amoxicillin",
+          fileObject: await fetchImage("/Amoxicillin.jpg"),
+        },
+      ];
+    };
+    bruh();
+  }, []);
+
+  const handleAddFiles = async (e: any) => {
     const files: File[] = Array.from(e.target.files);
-    setAddedFiles((prev) => [
-      ...prev,
-      ...files.map((file) => {
-        const blob = new Blob([file], { type: file.type });
-        const fileURL = URL.createObjectURL(blob);
-        return { fileName: file.name, fileUrl: fileURL };
-      }),
-    ]);
+    const filePromises = files.map(async (file) => {
+      const base64Data = await toBase64(file);
+      const blob = new Blob([file], { type: file.type });
+      const fileURL = URL.createObjectURL(blob);
+      return {
+        fileName: file.name,
+        fileUrl: fileURL,
+        fileObject: base64Data as string,
+      };
+    });
+
+    const addedFiles = await Promise.all(filePromises);
+    setAddedFiles((prev) => [...prev, ...addedFiles]);
   };
 
   const handleUpload = async () => {
@@ -62,22 +96,16 @@ function App() {
         return;
       }
       setLoading(true);
-      const queries: Promise<string[]> = Promise.all(
-        addedFiles.map(async (file) => {
-          return await Tesseract.recognize(file.fileUrl, "eng").then(
-            ({ data: { text } }) => {
-              console.log(text);
-              return text;
-            }
-          );
-        })
-      );
-      const response = await fetch("/api/parse_text", {
-        method: "POST",
-        body: JSON.stringify({ queries: await queries }),
-      });
+      let info: drugInfo[] = [];
+      for (const file of addedFiles) {
+        const response = await fetch("/api/parse_image", {
+          method: "POST",
+          body: JSON.stringify(file.fileObject),
+        });
+        const drug_dets = await response.json();
+        info.push(drug_dets);
+      }
 
-      const info = await response.json();
       console.log(info);
       setMedInfos(info);
       console.log("Files parsed successfully.");

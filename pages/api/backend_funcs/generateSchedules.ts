@@ -29,7 +29,9 @@ const generateSchedules = (data: drugInfo[]) =>{
         summary: `Take ${drug.dosage} pill(s) of ${drug.medName}`,
         description: `It's time to take ${drug.dosage} of ${
           drug.medName
-        }. ${drug.beforeMeal ? "Take before meal." : "Take after meal."}`
+        }. ${drug.beforeMeal ? "Take before meal." : "Take after meal."}\n\
+        ${drug.remarks}
+        `
       })
     });
   });
