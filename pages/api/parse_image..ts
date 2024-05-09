@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import drugInfo from '../../interfaces/drugInfo';
 import generateSchedules from './backend_funcs/generateSchedules';
-import getDrugInteractions from './backend_funcs/getDrugInteractions';
+import getDrugInteractions from './backend_funcs/getDrugNames';
 import parseText from './backend_funcs/parseText';
 import parseImage from './backend_funcs/parseImage';
 

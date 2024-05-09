@@ -20,14 +20,8 @@ const parseImage = async (image:string):Promise<drugInfo>=>{
             "content": [
               {
                 "type": "text",
-                "text": "Take in prescription text, parse the text (get base drug name(s)) extract in json: {medName: string of original commercial name,drugNames: string[] of component chemicals,dosage: number of tablets/amount in ml,timesPerDay: number, beforeMeal: boolean, remarks: string} e.g. {medName:Panadol,drugNames:[Acetaminophen],dosage:20ml,timesPerDay:1,beforeMeal:false,remarks:Do not take with alcohol} e.g. {medName:Panadol,drugNames:[Acetaminophen],dosage:1 tablet,timesPerDay:1,beforeMeal:false,remakrs:Take with diphenhydramine for headache}"
+                "text": "Take in prescription text, parse the text (get base drug name(s)) extract in json: {medName: string of original commercial name,dosage: calculated integer of tablets/amount in ml for each time a day,timesPerDay: a calculated integer for times to take each day, beforeMeal: boolean, remarks: string} e.g. {medName:Panadol,timesPerDay:3,dosage:20ml,remarks:Do not take with alcohol} e.g. {medName:Panadol,timesPerDay:1,dosage:1 tablet,remarks:Take with diphenhydramine for headache}"
               },
-              // {
-              //   "type": "image_url",
-              //   "image_url": {
-              //     "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTaPn7jre1O6ny8VHB1yBEySYSlmJgZrJ3dc3xwkqKfvw&s"
-              //   }
-              // }
               {
                 "type": "image_url",
                 "image_url": {

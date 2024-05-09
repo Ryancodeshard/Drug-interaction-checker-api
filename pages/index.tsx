@@ -226,21 +226,6 @@ function App() {
               value={row.timesPerDay}
               onChange={(e) => formEdit(index, "timesPerDay", e.target.value)}
             />
-            <RadioGroup
-              value={row.beforeMeal}
-              onChange={(e) => formEdit(index, "beforeMeal", e.target.value)}
-            >
-              <FormControlLabel
-                value={true}
-                control={<Radio />}
-                label="Before Meal"
-              />
-              <FormControlLabel
-                value={false}
-                control={<Radio />}
-                label="After Meal"
-              />
-            </RadioGroup>
           </Box>
         ))}
       </List>
@@ -248,7 +233,7 @@ function App() {
         Generate calendar
       </Button>
       <Box>
-        {loading ? (
+        {false ? (
           <Box
             sx={{
               position: "fixed",
