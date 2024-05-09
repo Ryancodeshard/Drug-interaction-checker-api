@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res:NextApiResponse<a
     res.status(200).json({schedules:schedules,interactions:interactions});
   } catch (error) {
     console.error('Error handling file upload:', error);
-    res.status(500).json({ error: 'Error handling file upload' });
+    res.status(500).json({ error: 'Error handling gen cal'+error });
   }
   }else {
     // Handle other HTTP methods

@@ -2,6 +2,7 @@ import drugInfo from "@/interfaces/drugInfo";
 
 // Function to generate .ics file
 const generateSchedules = (data: drugInfo[]) =>{
+  console.log("druginfo for schedules",data)
   // Create a new calendar
   let res:any = []
   const interval_timings_map: { [index: number]: number[] } = {
